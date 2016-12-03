@@ -1,8 +1,10 @@
 import os
+import urllib2
+import json
 from bs4 import BeautifulSoup, Tag
 from markdown2 import Markdown, markdown_path
 
-def init():
+def init(features):
   page = BeautifulSoup("", 'html.parser')
   html = page.new_tag("html")
   table = page.new_tag("table")
@@ -10,32 +12,24 @@ def init():
   page.append(html)
   html.append(table)
 
-  page = list_features(page)
+  page = list_features(page, features)
 
   return page
 
-def list_features(page):
+def list_features(page, features):
   first = add_row(page)
-
-  classes = get_classes()
-  properties = get_properties()
 
   r = add_col(page, first, "th", "Implementations")
 
-  for c in classes:
-    add_col(page, first, "th", c)
-
-  for p in properties:
-    add_col(page, first, "th", p)
+  for f in features:
+    add_col(page, first, "th", f)
 
   return page
 
-# TODO: get from namespace
-def get_classes():
-  return ["Activity", "Object", "Like"]
-
-def get_properties():
-  return ["object", "target", "published"]
+def get_features():
+  request = urllib2.Request("https://www.w3.org/ns/activitystreams", headers={"Accept" : "application/ld+json"})
+  contents = urllib2.urlopen(request).read()
+  return json.loads(contents)["@context"].keys()
 
 def add_row(page):
   table = page.table
@@ -53,12 +47,10 @@ def add_col(page, row, tag, string):
 
 def parse_reports():
 
-  page = init()
+  features = get_features()
+  page = init(features)
   path = os.getcwd()+"/activitystreams/implementation-reports/"
 
-  classes = get_classes()
-  properties = get_properties()
-  features = classes + properties
 
   for filename in os.listdir(path):
     html = markdown_path(path+filename)
@@ -87,7 +79,7 @@ def is_implemented(feature, implementation_soup):
       if answer == "\n":
         answer = answer.next_sibling
       
-      if answer.string[15] == "y":
+      if answer and answer.string[15] == "y":
         return True
       else:
         return False
@@ -96,7 +88,7 @@ def is_implemented(feature, implementation_soup):
     
     answer = p.string.split(": ")
     if answer[0] == feature:
-      if answer[1][0] == "y":
+      if answer[1] and answer[1][0] == "y":
         return True
       else:
         return False
@@ -106,7 +98,7 @@ def write(html):
     os.makedirs(os.getcwd()+"/out")
 
   with open(os.getcwd()+"/out/reports.html", "w+") as the_file:
-    print the_file.write(html)
+    the_file.write(html)
 
 page = parse_reports()
 write(page.prettify())
