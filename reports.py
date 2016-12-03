@@ -5,15 +5,26 @@ from bs4 import BeautifulSoup, Tag
 from markdown2 import Markdown, markdown_path
 
 def init(features):
-  page = BeautifulSoup("", 'html.parser')
-  html = page.new_tag("html")
-  table = page.new_tag("table")
-
-  page.append(html)
-  html.append(table)
+  page = BeautifulSoup("""<!doctype html>
+<html>
+  <head>
+    <title>AS2 implemented features</title>
+    <style type=\"text/css\">
+      html { font-family: Arial }
+      td, th {
+        padding: 0.3em; margin: 0;
+        border: 1px solid silver;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>AS2 implemented features</h1>
+    <table></table>
+  </body>
+</html>""", 'html.parser')
 
   page = list_features(page, features)
-
   return page
 
 def list_features(page, features):
@@ -29,10 +40,13 @@ def list_features(page, features):
 def get_features():
   request = urllib2.Request("https://www.w3.org/ns/activitystreams", headers={"Accept" : "application/ld+json"})
   contents = urllib2.urlopen(request).read()
-  l = sorted(json.loads(contents)["@context"].keys())
+  l = json.loads(contents)["@context"].keys()
   l.remove("xsd")
   l.remove("@vocab")
-  return l
+  l.remove("id")
+  l.remove("type")
+  l.remove("ldp")
+  return sorted(l)
 
 def add_row(page):
   table = page.table
