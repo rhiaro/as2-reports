@@ -17,19 +17,22 @@ def init(features):
   return page
 
 def list_features(page, features):
+
   first = add_row(page)
-
-  r = add_col(page, first, "th", "Implementations")
-
+  add_col(page, first, "th", "Feature / Implementation")
   for f in features:
-    add_col(page, first, "th", f)
+    r = add_row(page)
+    add_col(page, r, "th", f)
 
   return page
 
 def get_features():
   request = urllib2.Request("https://www.w3.org/ns/activitystreams", headers={"Accept" : "application/ld+json"})
   contents = urllib2.urlopen(request).read()
-  return json.loads(contents)["@context"].keys()
+  l = sorted(json.loads(contents)["@context"].keys())
+  l.remove("xsd")
+  l.remove("@vocab")
+  return l
 
 def add_row(page):
   table = page.table
@@ -49,22 +52,29 @@ def parse_reports():
 
   features = get_features()
   page = init(features)
+  rows = page.table.find_all('tr')
+  row = 0
+  first = rows[row]
+
   path = os.getcwd()+"/activitystreams/implementation-reports/"
 
-
   for filename in os.listdir(path):
-    html = markdown_path(path+filename)
-    soup = BeautifulSoup(html, 'html.parser')
+    row = 0
+    if filename != "template.md":
+      html = markdown_path(path+filename)
+      soup = BeautifulSoup(html, 'html.parser')
 
-    imp_name = soup.h1.string
-    tr = add_row(page)
-    add_col(page, tr, "th", imp_name)
+      imp_name = soup.h1.string
+      add_col(page, first, "th", imp_name)
 
-    for f in features:
-      if(is_implemented(f, soup)):
-        add_col(page, tr, "td", "X")
-      else:
-        add_col(page, tr, "td", "")
+      if(row < len(features)):
+        for f in features:
+          row = row + 1
+          next_row = rows[row]
+          if(is_implemented(f, soup)):
+            add_col(page, next_row, "td", "X")
+          else:
+            add_col(page, next_row, "td", "")
 
   return page
 
