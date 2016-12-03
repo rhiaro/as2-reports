@@ -20,6 +20,8 @@ def list_features(page):
   classes = get_classes()
   properties = get_properties()
 
+  r = add_col(page, first, "th", "Implementations")
+
   for c in classes:
     add_col(page, first, "th", c)
 
@@ -75,13 +77,35 @@ def parse_reports():
   return page
 
 def is_implemented(feature, implementation_soup):
-  return True
+  
+  classes = implementation_soup.find_all('h3')
+  properties = implementation_soup.find_all('li')
+
+  for c in classes:
+    if c.string == feature:
+      answer = c.next_sibling
+      if answer == "\n":
+        answer = answer.next_sibling
+      
+      if answer.string[15] == "y":
+        return True
+      else:
+        return False
+
+  for p in properties:
+    
+    answer = p.string.split(": ")
+    if answer[0] == feature:
+      if answer[1][0] == "y":
+        return True
+      else:
+        return False
 
 def write(html):
   if not os.path.exists(os.getcwd()+"/out"):
     os.makedirs(os.getcwd()+"/out")
 
-  with open(os.getcwd()+"/out/reports.html", "a+") as the_file:
+  with open(os.getcwd()+"/out/reports.html", "w+") as the_file:
     print the_file.write(html)
 
 page = parse_reports()
