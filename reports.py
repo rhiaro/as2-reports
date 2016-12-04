@@ -110,10 +110,14 @@ def is_implemented(feature, implementation_soup):
       if answer == "\n":
         answer = answer.next_sibling
       
-      if answer and answer.string[15] == "y":
-        return True
-      else:
-        return False
+      try:
+        if answer and answer.string[15] == "y":
+          return True
+        else:
+          return False
+      except IndexError:
+        print answer
+        pass
 
   for p in properties:
     
