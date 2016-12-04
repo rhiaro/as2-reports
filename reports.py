@@ -16,6 +16,8 @@ def init(features):
         border: 1px solid silver;
         text-align: center;
       }
+      .one { background-color: #FFC966; }
+      .two { background-color: #98FAA6; }
     </style>
   </head>
   <body>
@@ -92,6 +94,9 @@ def parse_reports():
           else:
             add_col(page, next_row, "td", "")
 
+  for r in rows:
+    r = color_row(r)
+
   return page
 
 def is_implemented(feature, implementation_soup):
@@ -118,6 +123,18 @@ def is_implemented(feature, implementation_soup):
         return True
       else:
         return False
+
+def color_row(row):
+  i = 0
+  cells = row.find_all("td")
+  for c in cells:
+    if c.string == "X":
+      i = i + 1
+  if i == 1:
+    row["class"] = "one"
+  elif i > 1:
+    row["class"] = "two"
+  return row
 
 def write(html):
   if not os.path.exists(os.getcwd()+"/out"):
