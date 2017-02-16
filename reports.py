@@ -83,6 +83,7 @@ def parse_reports():
       soup = BeautifulSoup(html, 'html.parser')
 
       imp_name = soup.h1.string
+      print imp_name + "\n"
       add_col(page, first, "th", imp_name)
 
       if(row < len(features)):
@@ -120,13 +121,15 @@ def is_implemented(feature, implementation_soup):
         pass
 
   for p in properties:
-    
-    answer = p.string.split(": ")
-    if answer[0] == feature:
-      if answer[1] and answer[1][0] == "y":
-        return True
-      else:
-        return False
+    try:
+      answer = p.string.split(": ")
+      if answer[0] == feature:
+        if answer[1] and answer[1][0] == "y":
+          return True
+        else:
+          return False
+    except AttributeError:
+      print "(fail)"
 
 def color_row(row):
   i = 0
