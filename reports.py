@@ -85,6 +85,25 @@ def parse_reports():
 
       imp_name = soup.h1.string
       print imp_name + "\n"
+      imp_info = soup.h1.find_next_sibling('ul')
+      imp_li = imp_info.find_all('li')
+      imp_infos = {}
+      for i in imp_li:
+        inf = i.string.split(": ")
+        imp_infos[inf[0]] = inf[1]
+
+      if imp_infos['Application role'].strip() == "publisher":
+        role = "P"
+      elif imp_infos['Application role'].strip() == "consumer":
+        role = "C"
+      elif imp_infos['Application role'].strip() == "both":
+        role = "PC"
+      else:
+        role = "X"
+
+      # imp_header = "<a href=\"%s\" title=\"%s\">%s</a>" % (imp_infos['Main URL'], imp_infos['Version'], imp_name)
+      # imp_header_ele = BeautifulSoup(imp_header, 'html.parser')
+      # print imp_header_ele
       add_col(page, first, "th", imp_name)
 
       if(row < len(features)):
@@ -92,7 +111,7 @@ def parse_reports():
           row = row + 1
           next_row = rows[row]
           if(is_implemented(f, soup)):
-            add_col(page, next_row, "td", "X")
+            add_col(page, next_row, "td", role)
           else:
             add_col(page, next_row, "td", "")
 
@@ -136,7 +155,7 @@ def color_row(row):
   i = 0
   cells = row.find_all("td")
   for c in cells:
-    if c.string == "X":
+    if c.string != "":
       i = i + 1
   if i == 1:
     row["class"] = "one"
