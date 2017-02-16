@@ -162,7 +162,7 @@ def color_row(row):
   p = 0
   cells = row.find_all("td")
   for cell in cells:
-    if cell.string == "X":
+    if cell.string == "PC":
       c = c + 1
       p = p + 1
     elif cell.string == "C":
