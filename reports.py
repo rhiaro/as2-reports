@@ -16,8 +16,11 @@ def init(features):
         border: 1px solid silver;
         text-align: center;
       }
-      .one { background-color: #FFC966; }
-      .two { background-color: #98FAA6; }
+      .zero { background-color: #FF8166; }
+      .one { background-color: #FFAC66; }
+      .two { background-color: #FFC966; }
+      .three { background-color: #98FAA6; }
+      .four { background-color: #44D55F; }
     </style>
   </head>
   <body>
@@ -114,9 +117,12 @@ def parse_reports():
             add_col(page, next_row, "td", role)
           else:
             add_col(page, next_row, "td", "")
-
+  first = True
   for r in rows:
-    r = color_row(r)
+    if first:
+        first = False
+    else:
+      r = color_row(r)
 
   return page
 
@@ -152,15 +158,42 @@ def is_implemented(feature, implementation_soup):
       print "(fail)"
 
 def color_row(row):
-  i = 0
+  c = 0
+  p = 0
   cells = row.find_all("td")
-  for c in cells:
-    if c.string != "":
-      i = i + 1
-  if i == 1:
+  for cell in cells:
+    if cell.string == "X":
+      c = c + 1
+      p = p + 1
+    elif cell.string == "C":
+      c = c + 1
+    elif cell.string == "P":
+      p = p + 1
+      
+  row["class"] = "zero"
+
+  i = 0
+  if c > 1:
+    i = i + 2
+  else:
+    i = i + c
+
+  if p > 1:
+    i = i + 2
+  else:
+    i = i + p
+      
+  if i == 0 :
+    row["class"] = "zero"
+  elif i == 1:
     row["class"] = "one"
-  elif i > 1:
+  elif i == 2:
     row["class"] = "two"
+  elif i == 3:
+    row["class"] = "three"
+  elif i == 4:
+    row["class"] = "four"
+
   return row
 
 def write(html):
