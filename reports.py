@@ -50,6 +50,7 @@ def get_features():
   l.remove("id")
   l.remove("type")
   l.remove("ldp")
+  l.remove("orderedItems")
   return sorted(l)
 
 def add_row(page):
