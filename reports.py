@@ -16,7 +16,7 @@ def init(features):
         border: 1px solid silver;
         text-align: center;
       }
-      .zero { background-color: #FF8166; }
+      .zero { background-color: #FFF; }
       .one { background-color: #FFAC66; }
       .two { background-color: #FFC966; }
       .three { background-color: #98FAA6; }
